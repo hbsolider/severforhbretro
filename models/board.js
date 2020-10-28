@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const board = mongoose.Schema({
     title:{
         type:mongoose.SchemaTypes.String,
-        require:true
+        required:true
     },
     dayCreated:{
         type:mongoose.SchemaTypes.Date,
@@ -11,11 +11,14 @@ const board = mongoose.Schema({
     },
     cardAmount:{
         type:mongoose.SchemaTypes.Number,
-        require:true
     },
     userId:{
         type:mongoose.SchemaTypes.ObjectId,
-        require:true
+        required:true
+    },
+    isDelete:{
+        type:mongoose.SchemaTypes.Boolean,
+        default:0
     }
 })
 

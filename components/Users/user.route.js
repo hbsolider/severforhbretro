@@ -2,7 +2,6 @@ const user = require("../../models/user");
 
 const router = require("express").Router();
 const userModel = require("../../models/user");
-const bcrypt = require("bcrypt");
 router.get("/", async (req, res) => {
   await userModel
     .find()
@@ -13,28 +12,34 @@ router.get("/", async (req, res) => {
       res.status(400).json({ error });
     });
 });
-
-router.post("/create", async (req, res) => {
+router.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await userModel.signInByUsername(username, password);
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(400).json({ error });
+  }
+});
+router.post("/", async (req, res) => {
   userModel
     .find({ username: req.body.username })
     .then(async (result) => {
-      if (result.length>0) {
+      if (result.length > 0) {
         return res.status(400).json({ message: "username existed!" });
       }
-      const salt = bcrypt.genSaltSync(10);
-      const newPassword = bcrypt.hashSync(req.body.password, salt);
       const newUser = new userModel({
-        boardList: [],
         ...req.body,
-        password: newPassword,
       });
       await newUser
         .save()
         .then((result) => {
-          res.status(201).json({message:"user created!",userId:result._id});
+          res
+            .status(201)
+            .json({ message: "user created!", userId: result._id });
         })
         .catch((error) => {
-          res.status(400).json({error});
+          res.status(400).json({ error });
         });
     })
     .catch((error) => {

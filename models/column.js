@@ -3,15 +3,15 @@ const mongoose = require('mongoose');
 const column = mongoose.Schema({
     title:{
         type:mongoose.SchemaTypes.String,
-        require:true,
+        required:true,
     },
     dayCreated:{
         type:mongoose.SchemaTypes.Date,
-        require:true
+        default:Date.now()
     },
     boardId:{
         type:mongoose.SchemaTypes.ObjectId,
-        require:true
+        required:true
     }
 })
 

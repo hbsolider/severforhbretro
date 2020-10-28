@@ -3,11 +3,11 @@ const mongoose = require('mongoose');
 const card = mongoose.Schema({
     title:{
         type:mongoose.SchemaTypes.String,
-        require:true,
+        required:true,
     },
     idColumn:{
         type:mongoose.SchemaTypes.ObjectId,
-        require:true,
+        required:true,
     },
     feedBack:{
         commentList:{
@@ -15,11 +15,11 @@ const card = mongoose.Schema({
         },
         likeList:{
             type:mongoose.SchemaTypes.Array
-        },
-        likeAmount:{
-            type:mongoose.SchemaTypes.Number,
-            require:true,
         }
+    },
+    index:{
+        type:mongoose.SchemaTypes.Number,
+        required:true
     }
 })
 

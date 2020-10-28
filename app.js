@@ -1,21 +1,26 @@
-require('dotenv').config()
+require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const app = express();
-const db = require('./database/connect')
-const cors = require('cors');
-app.use(cors())
+const db = require("./database/connect");
+const cors = require("cors");
+app.use(cors({ allowedHeaders: ["Content-Type", "application/json"] }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use((req, res, next) => {
+  res.setHeader("Content-Type", "application/json");
+  next();
+});
 db.connectOnce();
 
 //declare routes
-const boardRoute = require('./components/Boards/board.route');
-const userRoute = require('./components/Users/user.route')
+const boardRoute = require("./components/Boards/board.route");
+const userRoute = require("./components/Users/user.route");
 
 //use routes
-app.use('/board',boardRoute)
-app.use('/user',userRoute)
-const PORT = process.env.PORT||3001
-app.listen(PORT,()=>{
-    console.log(`App listen port: ${PORT}`)
-})
+app.use("/board", boardRoute);
+app.use("/user", userRoute);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`App listen port: ${PORT}`);
+});
