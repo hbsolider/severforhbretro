@@ -1,19 +1,25 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/user");
 function auth(req, res, next) {
+  
+  if (!req.header("Authorization")) {
+    return res.status(403).json({ message: "You must login!" });
+  }
   const token = req.header("Authorization").replace("Bearer ", "");
-  const data = jwt.verify(token, process.env.JWT_KEY);
   try {
+    const data = jwt.verify(token, process.env.JWT_KEY);
     userModel.findById(data._id).then((user) => {
       if (!user) {
-        throw new Error({ message: "Failed to authorization" });
+        return res.status(401).json({ message: "Unauthenticated" });
       }
       req.user = user;
       req.token = token;
       next();
     });
   } catch (error) {
-    throw new Error({ message: error });
+    return res
+      .status(401)
+      .json({ message: "Something went wrong with your account!" });
   }
 }
 

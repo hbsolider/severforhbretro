@@ -34,7 +34,9 @@ module.exports = {
       URL,
       {
         useNewUrlParser: true,
+        useUnifiedTopology: true,
         useCreateIndex: true,
+        useFindAndModify: false,
       },
       (err) => {
         if (!err) {

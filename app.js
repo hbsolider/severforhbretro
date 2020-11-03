@@ -14,12 +14,15 @@ app.use((req, res, next) => {
 db.connectOnce();
 
 //declare routes
-const boardRoute = require("./components/Boards/board.route");
-const userRoute = require("./components/Users/user.route");
-
+const boardRoute = require("./routers/board.route");
+const userRoute = require("./routers/user.route");
+const indexRoute = require("./routers/index");
+const cardRoute = require("./routers/card.route");
 //use routes
 app.use("/board", boardRoute);
 app.use("/user", userRoute);
+app.use("/", indexRoute);
+app.use("/card", cardRoute);
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`App listen port: ${PORT}`);
