@@ -1,7 +1,8 @@
-const user = require("../models/user");
-
 const router = require("express").Router();
+const auth = require("../middlewares/auth");
 const userModel = require("../models/user");
+const bcrypt = require("bcrypt");
+
 router.get("/", async (req, res) => {
   await userModel
     .find()
@@ -46,5 +47,39 @@ router.post("/", async (req, res) => {
       return res.status(403).json({ message: "something went wrong!", error });
     });
 });
-
+router.patch("/", auth, async (req, res) => {
+  if (!req.body.passwordChange) {
+    try {
+      let rr = (dayCreated) => ({
+        username: req.body.username,
+        password: req.body.password,
+        dayCreated,
+        email: req.body.email,
+        _id: req.body._id,
+      });
+      await userModel
+        .findByIdAndUpdate(req.body._id, {
+          username: req.body.username,
+          email: req.body.email,
+        })
+        .then((r) => {
+          if (r) res.status(200).json({ user: rr(r.dayCreated) });
+        });
+    } catch (error) {}
+  } else {
+    const salt = bcrypt.genSaltSync(10);
+    const newpass = bcrypt.hashSync(req.body.password, salt);
+    try {
+      await userModel
+        .findByIdAndUpdate(req.body._id, {
+          username: req.body.username,
+          email: req.body.email,
+          password: newpass,
+        })
+        .then((r) => {
+          if (r) res.status(200).json({ message: "Update success!" });
+        });
+    } catch (error) {}
+  }
+});
 module.exports = router;

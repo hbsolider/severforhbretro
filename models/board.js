@@ -18,6 +18,10 @@ const board = mongoose.Schema({
     type: mongoose.SchemaTypes.Boolean,
     default: false,
   },
+  public:{
+    type:mongoose.SchemaTypes.Boolean,
+    default:false
+  }
 });
 board.statics.findColumn = async (_id) => {
   const column = await Column.find({ boardId: _id });
@@ -65,6 +69,15 @@ board.statics.insertBoard = async (feild) => {
     throw new Error(err);
   }
   return result;
+};
+board.statics.deleteSelf = async (_id) => {
+  try {
+    await Board.findByIdAndDelete(_id);
+    await Column.deleteMany({ boardId: _id });
+    return { message: "Delete board success!" };
+  } catch (error) {
+    throw new Error(error);
+  }
 };
 const Board = mongoose.model("Board", board);
 
