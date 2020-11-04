@@ -66,8 +66,10 @@ router.get("/data", auth, async (req, res) => {
       if (!r) {
         return res.status(400).json({ message: "Not exist board!" });
       }
-      if (!r.userId.equals(req.user._id)) {
-        return res.status(400).json({ message: "Not allowed!" });
+      if (!r.public) {
+        if (!r.userId.equals(req.user._id)) {
+          return res.status(400).json({ message: "Not allowed!" });
+        }
       }
       await boardModel.findColumn(boardId).then((result) => {
         return res.status(200).json({ title: r.title, column: result });
