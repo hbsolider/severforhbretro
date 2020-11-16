@@ -2,17 +2,9 @@ const router = require("express").Router();
 const auth = require("../middlewares/auth");
 const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
-
-router.get("/", async (req, res) => {
-  await userModel
-    .find()
-    .then((result) => {
-      res.status(200).json({ data: result });
-    })
-    .catch((error) => {
-      res.status(400).json({ error });
-    });
-});
+const passport = require("passport");
+let clientUrl = process.env.CLIENT_URL||"http://localhost:3000";
+require("../config/passport").config();
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -80,6 +72,42 @@ router.patch("/", auth, async (req, res) => {
           if (r) res.status(200).json({ message: "Update success!" });
         });
     } catch (error) {}
+  }
+});
+router.get("/auth/facebook", passport.authenticate("facebook"));
+router.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook"),
+  (req, res) => {
+    res.redirect(`${clientUrl}#`);
+  }
+);
+router.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google"),
+  (req, res) => {
+    res.redirect(`${clientUrl}#`);
+  }
+);
+router.get("/", (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.json({ user: req.user, isLogged: true });
+  }
+  return res.json({ user: {}, isLogged: false });
+});
+router.get("/logout", (req, res) => {
+  try {
+    req.logOut();
+    res.status(200).json({message:'Logout success!'})
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({message:'Something not good!'})
   }
 });
 module.exports = router;

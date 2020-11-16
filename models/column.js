@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Card = require("./card");
 const column = mongoose.Schema({
   title: {
     type: mongoose.SchemaTypes.String,
@@ -18,4 +17,5 @@ const column = mongoose.Schema({
     default: [],
   },
 });
-module.exports = mongoose.model("Column", column);
+const Column = mongoose.model('Column',column)
+module.exports = Column;

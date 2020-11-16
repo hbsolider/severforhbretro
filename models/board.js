@@ -18,26 +18,50 @@ const board = mongoose.Schema({
     type: mongoose.SchemaTypes.Boolean,
     default: false,
   },
-  public:{
-    type:mongoose.SchemaTypes.Boolean,
-    default:false
-  }
+  public: {
+    type: mongoose.SchemaTypes.Boolean,
+    default: false,
+  },
 });
 board.statics.findColumn = async (_id) => {
   const column = await Column.find({ boardId: _id });
   if (!column) {
-    throw new Error("Not exist!");
+    throw "Not exist!";
   }
   let results = [];
   for (let i = 0; i < column.length; i++) {
     const { _id, title, orderCard } = column[i];
     const card = await Card.find({ columnId: _id });
     if (!card) {
-      throw new Error("column not exist!");
+      throw "column not exist!";
     }
     results.push({ _id, title, orderCard, card });
   }
   return results;
+};
+board.statics.getCard = async (boardId) => {
+  let result = [];
+  try {
+    const col = await Column.find({ boardId });
+    if (!col || col.length === 0) {
+      throw "Something went wrong";
+    }
+    for (let i = 0; i < col.length; i++) {
+      let listCard = [];
+      const { orderCard, title, _id } = col[i];
+      for(let j = 0;j<orderCard.length;j++){
+        await Card.findById(orderCard[j]).then(r=>{
+          if(r){
+            listCard.push(r)
+          }
+        })
+      }
+      result.push({ _id, title, card: listCard });
+    }
+  } catch (error) {
+    throw error;
+  }
+  return result;
 };
 board.statics.insertBoard = async (feild) => {
   const columns = (boardId) => [

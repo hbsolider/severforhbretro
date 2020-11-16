@@ -71,11 +71,12 @@ router.get("/data", auth, async (req, res) => {
           return res.status(400).json({ message: "Not allowed!" });
         }
       }
-      await boardModel.findColumn(boardId).then((result) => {
+      await boardModel.getCard(boardId).then((result) => {
         return res.status(200).json({ title: r.title, column: result });
       });
     })
     .catch((err) => {
+      console.log(err)
       return res.status(400).json({ error: err });
     });
 });
