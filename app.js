@@ -5,6 +5,7 @@ const cors = require("cors");
 const expressSession = require("express-session");
 const db = require("./database/connect");
 const app = express();
+const https = require('https')
 db.connectOnce();
 // app.use(cors());
 app.use(cors({
@@ -38,3 +39,4 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`App listen port: ${PORT}`);
 });
+https.createServer(app)
