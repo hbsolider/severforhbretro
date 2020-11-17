@@ -3,7 +3,8 @@ const auth = require("../middlewares/auth");
 const userModel = require("../models/user");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-let clientUrl = process.env.CLIENT_URL||"http://localhost:3000";
+const jwt = require("jsonwebtoken");
+let clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
 require("../config/passport").config();
 router.post("/login", async (req, res) => {
   try {
@@ -95,19 +96,35 @@ router.get(
     res.redirect(`${clientUrl}#`);
   }
 );
-router.get("/", (req, res) => {
-  if (req.isAuthenticated()) {
-    return res.json({ user: req.user, isLogged: true });
+router.get("/", async (req, res) => {
+  try {
+    if (req.isAuthenticated()) {
+      return res.json({ user: req.user, isLogged: true });
+    }
+    if (!req.header("Authorization")) {
+      return res.status(403).json({ message: "You must login!" });
+    }
+    const token = req.header("Authorization").replace("Bearer ", "");
+    const data = jwt.verify(token, process.env.JWT_KEY);
+    await userModel.findById(data._id).then((user) => {
+      if (!user) {
+        return res.json({ user: {}, isLogged: false });
+      }
+      return res.json({ user, isLogged: true });
+    });
+  } catch (error) {
+    return res
+      .status(401)
+      .json({ message: "Something went wrong with your account!" });
   }
-  return res.json({ user: {}, isLogged: false });
 });
 router.get("/logout", (req, res) => {
   try {
     req.logOut();
-    res.status(200).json({message:'Logout success!'})
+    res.status(200).json({ message: "Logout success!" });
   } catch (error) {
-    console.log(error)
-    res.status(400).json({message:'Something not good!'})
+    console.log(error);
+    res.status(400).json({ message: "Something not good!" });
   }
 });
 module.exports = router;
