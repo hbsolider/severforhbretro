@@ -46,6 +46,7 @@ router.patch("/", auth, async (req, res) => {
       let rr = (dayCreated) => ({
         username: req.body.username,
         password: req.body.password,
+        displayName: req.body.displayName,
         dayCreated,
         email: req.body.email,
         _id: req.body._id,
@@ -54,6 +55,7 @@ router.patch("/", auth, async (req, res) => {
         .findByIdAndUpdate(req.body._id, {
           username: req.body.username,
           email: req.body.email,
+          displayName: req.body.displayName,
         })
         .then((r) => {
           if (r) res.status(200).json({ user: rr(r.dayCreated) });
@@ -68,6 +70,7 @@ router.patch("/", auth, async (req, res) => {
           username: req.body.username,
           email: req.body.email,
           password: newpass,
+          displayName: req.body.displayName,
         })
         .then((r) => {
           if (r) res.status(200).json({ message: "Update success!" });
@@ -80,7 +83,7 @@ router.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook"),
   (req, res) => {
-    res.redirect(`${clientUrl}#`);
+    res.redirect(`${clientUrl}`);
   }
 );
 router.get(
@@ -93,17 +96,17 @@ router.get(
   "/auth/google/callback",
   passport.authenticate("google"),
   (req, res) => {
-    res.redirect(`${clientUrl}#`);
+    res.redirect(`${clientUrl}`);
   }
 );
 router.get("/", async (req, res) => {
+  if (req.isAuthenticated()) {
+    return res.json({ user: req.user, isLogged: true });
+  }
+  if (!req.header("Authorization")) {
+    return res.json({ user: {}, isLogged: false });
+  }
   try {
-    if (req.isAuthenticated()) {
-      return res.json({ user: req.user, isLogged: true });
-    }
-    if (!req.header("Authorization")) {
-      return res.status(403).json({ message: "You must login!" });
-    }
     const token = req.header("Authorization").replace("Bearer ", "");
     const data = jwt.verify(token, process.env.JWT_KEY);
     await userModel.findById(data._id).then((user) => {
@@ -113,9 +116,7 @@ router.get("/", async (req, res) => {
       return res.json({ user, isLogged: true });
     });
   } catch (error) {
-    return res
-      .status(401)
-      .json({ message: "Something went wrong with your account!" });
+    return res.json({ user: {}, isLogged: false });
   }
 });
 router.get("/logout", (req, res) => {

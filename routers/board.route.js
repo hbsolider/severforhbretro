@@ -12,7 +12,7 @@ router
   .get(auth, async (req, res, next) => {
     await boardModel
       .find({ userId: req.user._id })
-      .select("title cardAmount dayCreated")
+      .select("title cardAmount dayCreated public")
       .then((result) => {
         return res.status(200).json({ data: result });
       })

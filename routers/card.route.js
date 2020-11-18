@@ -36,18 +36,18 @@ router
         if (r) return res.status(200).json({ message: "Delete success!" });
       });
     } catch (error) {
+      console.log(error)
       return res.status(400).json({ message: "Something wrong!" });
     }
   });
 router.post("/changeIndex", async (req, res) => {
   try {
-    const { sourceId, desId, cardId, sourceIndex, desIndex } = req.body;
+    const { sourceId, desId, sourceOrderCard, desOrderCard } = req.body;
     await Card.changeColumnAndIndex({
       sourceId,
       desId,
-      cardId,
-      sourceIndex,
-      desIndex,
+      sourceOrderCard,
+      desOrderCard,
     }).then(r=>{
       res.status(200).json({message:"Change success!",column:r})
     });

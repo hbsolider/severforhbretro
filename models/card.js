@@ -52,7 +52,7 @@ card.statics.delete = async (_id) => {
     const { columnId } = await Card.findById(_id);
     const { orderCard } = await Column.findById(columnId);
     const order = orderCard.filter((e) => {
-      return !e.equals(_id);
+      return e+''!==_id+'';
     });
     await Column.findOneAndUpdate({ _id: columnId }, { orderCard: order });
     return await Card.findByIdAndDelete(_id).then((r) => {
@@ -65,36 +65,18 @@ card.statics.delete = async (_id) => {
 card.statics.changeColumnAndIndex = async ({
   sourceId,
   desId,
-  sourceIndex,
-  desIndex,
-  cardId,
+  sourceOrderCard,
+  desOrderCard,
 }) => {
   try {
     if (sourceId === desId) {
-      let { orderCard } = await Column.findById(sourceId);
-      orderCard.splice(sourceIndex, 1);
-      orderCard.splice(desIndex, 0, cardId);
-      return await Column.findByIdAndUpdate(sourceId, { orderCard }).then(
-        (r) => {
-          return r;
-        }
-      );
+      await Column.findByIdAndUpdate(sourceId, { orderCard: desOrderCard });
     } else {
-      let result = [];
-      const colS = await Column.findById(sourceId);
-      let sourceOrderCard = colS.orderCard;
-      const colD = await Column.findById(desId);
-      let desOrderCard = colD.orderCard;
-      sourceOrderCard.splice(sourceIndex, 1);
-      desOrderCard.splice(desIndex, 0, cardId);
-      result.push(await colS.save())
-      result.push(await colD.save())
-      // result.push(await Column.updateOne({_id:sourceIndex},{ orderCard: newSourceOrderCard }));
-      // result.push(await Column.updateOne({_id:desId},{ orderCard: newDesOrderCard }));
-      return result;
+      await Column.findByIdAndUpdate(sourceId, { orderCard: sourceOrderCard });
+      await Column.findByIdAndUpdate(desId, { orderCard: desOrderCard });
     }
+    return { message: "Change success!" };
   } catch (error) {
-    console.log(error)
     throw error;
   }
 };

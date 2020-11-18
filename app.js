@@ -5,19 +5,16 @@ const cors = require("cors");
 const expressSession = require("express-session");
 const db = require("./database/connect");
 const app = express();
-const https = require("https");
 db.connectOnce();
 // app.use(cors());
-const whitelist = ["https://hbfunretro.herokuapp.com", "http://localhost:3000"];
+const whitelist = [
+  "https://hbfunretro.herokuapp.com",
+  "http://localhost:3000",
+  "http://localhost:5000",
+];
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: "include",
+  origin: "https://hbfunretro.herokuapp.com",
+  credentials: true,
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -44,7 +41,9 @@ app.use("/api/", indexRoute);
 app.use("/api/card", cardRoute);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`App listen port: ${PORT}`);
 });
-https.createServer(app);
+const io = require('socket.io')(server);
+
+require('./config/socket')(io)
