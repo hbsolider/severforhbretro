@@ -1,4 +1,3 @@
-const User = require("../models/user");
 const Board = require("../models/board");
 
 const getBoardData = async (boardId, client) => {
@@ -13,12 +12,15 @@ const getBoardData = async (boardId, client) => {
 const socket = (io) => {
   io.on("connection", (client) => {
     console.log("New connection", client.id);
-    client.on("subscribeToDateEvent", (boardId) => {
-      setInterval(() => {
-        getBoardData(boardId, client);
-      }, 1500);
-    });
+    client.on('disconnect',()=>{
+        console.log('disconnect',client.id)
+    })
+    client.on('client-change',()=>{
+        io.sockets.emit('server-send','data');
+    })
   });
+
+
 };
 
 module.exports = socket;
