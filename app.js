@@ -13,7 +13,7 @@ const whitelist = [
   "http://localhost:5000",
 ];
 const corsOptions = {
-  origin: "http://localhost:3000",
+  origin: "https://hbfunretro.herokuapp.com",
   credentials: true,
 };
 app.use(cors(corsOptions));
